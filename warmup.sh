@@ -8,8 +8,8 @@ LOG_FILE="/workspace/warmup.log"
 echo "Using API Key: $API_KEY" | tee -a "$LOG_FILE"
 
 # Initial delay to allow Automatic1111 services to start
-echo "Initial wait: Giving 30 seconds for Automatic1111 to start up..." | tee -a "$LOG_FILE"
-sleep 30
+echo "Initial wait: Giving 120 seconds for Automatic1111 to start up..." | tee -a "$LOG_FILE"
+sleep 120
 
 # Wait until Automatic1111 is fully ready
 until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/options \
