@@ -14,7 +14,7 @@ sleep 10
 # Loop until "Lino" is found in the response from sdapi/v1/sd-models
 until curl -k -s -H "Authorization: Bearer $API_KEY" https://127.0.0.1:7860/sdapi/v1/sd-models | grep -q "Lino"; do
     echo "Waiting for Automatic1111 to be ready with Lino model available..."
-    sleep 5
+    sleep 10
 done
 
 # Short pause to ensure model is fully loaded
@@ -27,11 +27,13 @@ curl -k -X POST "https://127.0.0.1:7860/sdapi/v1/options" \
     -H "Authorization: Bearer $API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"sd_model_checkpoint": "sd_xl_base_1.0.safetensors"}' >> "$LOG_FILE" 2>&1
+sleep 10  # Wait to ensure model switch
 
 curl -k -X POST "https://127.0.0.1:7860/sdapi/v1/txt2img" \
     -H "Authorization: Bearer $API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"prompt": "A simple warm-up scene", "steps": 10, "cfg_scale": 7.5, "width": 256, "height": 256}' >> "$LOG_FILE" 2>&1
+sleep 10  # Wait to ensure model switch
 
 # Load Lino model
 echo "Switching to Lino model..." | tee -a "$LOG_FILE"
@@ -39,6 +41,7 @@ curl -k -X POST "https://127.0.0.1:7860/sdapi/v1/options" \
     -H "Authorization: Bearer $API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"sd_model_checkpoint": "LinoBear_v1.safetensors"}' >> "$LOG_FILE" 2>&1
+sleep 10  # Wait to ensure model switch
 
 # Mark warm-up as complete
 touch "$WARMUP_FILE"
