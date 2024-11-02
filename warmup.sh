@@ -11,7 +11,7 @@ sleep $INITIAL_WAIT
 
 # Wait until Automatic1111 is fully ready
 while true; do
-    STATUS_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/options \
+    STATUS_CODE=$(curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:17860/sdapi/v1/options \
         -H "Authorization: Bearer $API_KEY")
     
     if [ "$STATUS_CODE" -eq 200 ]; then
@@ -25,19 +25,19 @@ done
 
 # Load SD XL model and perform a warm-up generation
 echo "Loading SD XL model and performing warm-up generation..."
-curl -k -X POST "https://127.0.0.1:7860/sdapi/v1/options" \
+curl -k -X POST "https://127.0.0.1:17860/sdapi/v1/options" \
     -H "Authorization: Bearer $API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"sd_model_checkpoint": "sd_xl_base_1.0.safetensors"}'
 
-curl -k -X POST "https://127.0.0.1:7860/sdapi/v1/txt2img" \
+curl -k -X POST "https://127.0.0.1:17860/sdapi/v1/txt2img" \
     -H "Authorization: Bearer $API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"prompt": "A simple warm-up scene", "steps": 10, "cfg_scale": 7.5, "width": 256, "height": 256}'
 
 # Switch to Lino model
 echo "Switching to Lino model..."
-curl -k -X POST "https://127.0.0.1:7860/sdapi/v1/options" \
+curl -k -X POST "https://127.0.0.1:17860/sdapi/v1/options" \
     -H "Authorization: Bearer $API_KEY" \
     -H "Content-Type: application/json" \
     -d '{"sd_model_checkpoint": "LinoBear_v1.safetensors"}'
