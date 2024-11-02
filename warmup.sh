@@ -8,8 +8,8 @@ LOG_FILE="/workspace/warmup.log"
 echo "Using API Key: $API_KEY" | tee -a "$LOG_FILE"
 
 # Initial delay to allow Automatic1111 services to start
-echo "Initial wait: Giving 120 seconds for Automatic1111 to start up..." | tee -a "$LOG_FILE"
-sleep 120
+echo "Initial wait: Giving 180 seconds for Automatic1111 to start up..." | tee -a "$LOG_FILE"
+sleep 180
 
 # Wait until Automatic1111 is fully ready
 until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/options \
@@ -19,7 +19,7 @@ until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/
 done
 
 # Short pause to ensure model is fully loaded
-echo "Automatic1111 is ready. Waiting 60 seconds before warm-up." | tee -a "$LOG_FILE"
+echo "Automatic1111 is ready. Waiting 10 seconds before warm-up." | tee -a "$LOG_FILE"
 sleep 10
 
 # Load SD XL model and perform a warm-up generation
