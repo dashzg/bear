@@ -74,35 +74,29 @@ function provisioning_start() {
     provisioning_get_models "${WORKSPACE}/storage/stable_diffusion/models/esrgan" "${ESRGAN_MODELS[@]}"
 
 
-	# Install vastai if not already installed
-	sudo pip install --upgrade vastai
+    # Install vastai if not already installed
+    sudo pip install --upgrade vastai
 
     INSTANCE_ID=$CONTAINER_ID
     echo "Retrieved instance ID: $INSTANCE_ID"
 
-	# Perform the cloud copy
-	sudo vastai cloud copy \
-		--src "/LinoBear/model/" \
-		--dst "/workspace/stable-diffusion-webui/models/Stable-diffusion/" \
-		--instance "$INSTANCE_ID" \
-		--connection 18348 \
-		--transfer "Cloud To Instance" \
-		--api-key a0a8446cf00c764c771c39915baced4fa4e898148eaf4734c089bb748b2ac5eb
+    # Perform the cloud copy
+    sudo vastai cloud copy \
+        --src "/LinoBear/model/" \
+        --dst "/workspace/stable-diffusion-webui/models/Stable-diffusion/" \
+        --instance "$INSTANCE_ID" \
+        --connection 18348 \
+        --transfer "Cloud To Instance" \
+        --api-key a0a8446cf00c764c771c39915baced4fa4e898148eaf4734c089bb748b2ac5eb
 
-	# Download warmup.sh to /workspace directory
-	curl -o /workspace/warmup.sh \
-		https://raw.githubusercontent.com/dashzg/bear/main/warmup.sh
-		
-	# Make sure warmup.sh is executable
-	sudo chmod +x /workspace/warmup.sh
+    # Download warmup.sh to /workspace directory
+    curl -o /workspace/warmup.sh \
+        https://raw.githubusercontent.com/dashzg/bear/main/warmup.sh
+        
+    # Make sure warmup.sh is executable
+    sudo chmod +x /workspace/warmup.sh
 
-	# Run warmup.sh and redirect output to warmup.log for verification
-	sudo /workspace/warmup.sh > /workspace/warmup.log 2>&1 &
-
-	# Add warmup.sh execution command to .bashrc for automatic run on each login
-	echo "sudo /workspace/warmup.sh > /workspace/warmup.log 2>&1 &" | sudo tee -a ~/.bashrc
-
-	
+    # Start Automatic1111 in background
     PLATFORM_ARGS=""
     if [[ $XPU_TARGET = "CPU" ]]; then
         PLATFORM_ARGS="--use-cpu all --skip-torch-cuda-test --no-half"
@@ -113,11 +107,23 @@ function provisioning_start() {
     cd /opt/stable-diffusion-webui
     if [[ -z $MAMBA_BASE ]]; then
         source "$WEBUI_VENV/bin/activate"
-        LD_PRELOAD=libtcmalloc.so python launch.py ${ARGS_COMBINED}
+        LD_PRELOAD=libtcmalloc.so python launch.py ${ARGS_COMBINED} &
         deactivate
     else 
-        micromamba run -n webui -e LD_PRELOAD=libtcmalloc.so python launch.py ${ARGS_COMBINED}
+        micromamba run -n webui -e LD_PRELOAD=libtcmalloc.so python launch.py ${ARGS_COMBINED} &
     fi
+
+    # Wait for Automatic1111 to be fully initialized, then run warmup.sh
+    {
+        echo "Checking Automatic1111 status before running warmup script..."
+        until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/options | grep -q "200"; do
+            echo "Waiting for Automatic1111 to be ready..."
+            sleep 5
+        done
+        echo "Automatic1111 is ready. Running warmup script..."
+        /workspace/warmup.sh > /workspace/warmup.log 2>&1 &
+    } &
+
     provisioning_print_end
 }
 
