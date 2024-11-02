@@ -115,12 +115,12 @@ function provisioning_start() {
 
     # Wait for Automatic1111 to be fully initialized, then run warmup.sh
     {
-        echo "Checking Automatic1111 status before running warmup script..."
+        echo "Checking Automatic1111 status before running warmup script..." | tee -a /workspace/warmup_debug.log
         until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/options | grep -q "200"; do
-            echo "Waiting for Automatic1111 to be ready..."
+            echo "Waiting for Automatic1111 to be ready..." | tee -a /workspace/warmup_debug.log
             sleep 5
         done
-        echo "Automatic1111 is ready. Running warmup script..."
+        echo "Automatic1111 is ready. Running warmup script..." | tee -a /workspace/warmup_debug.log
         /workspace/warmup.sh > /workspace/warmup.log 2>&1 &
     } &
 
