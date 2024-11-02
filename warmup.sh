@@ -8,16 +8,14 @@ LOG_FILE="/workspace/warmup.log"
 echo "Using API Key: $API_KEY" | tee -a "$LOG_FILE"
 
 # Initial delay to allow Automatic1111 services to start
-echo "Initial wait: Giving 180 seconds for Automatic1111 to start up..." | tee -a "$LOG_FILE"
+echo "Initial wait: Giving 10 seconds for Automatic1111 to start up..." | tee -a "$LOG_FILE"
 sleep 10
 
-# Wait until Automatic1111 is ready by checking the models endpoint
-until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/sd-models \
-    -H "Authorization: Bearer $API_KEY" | grep -q "Lino"; do
-    echo "Waiting for Automatic1111 to be ready..."
+# Loop until "Lino" is found in the response from sdapi/v1/sd-models
+until curl -k -s -H "Authorization: Bearer $API_KEY" https://127.0.0.1:7860/sdapi/v1/sd-models | grep -q "Lino"; do
+    echo "Waiting for Automatic1111 to be ready with Lino model available..."
     sleep 5
 done
-
 
 # Short pause to ensure model is fully loaded
 echo "Automatic1111 is ready. Waiting 10 seconds before warm-up." | tee -a "$LOG_FILE"
