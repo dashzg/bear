@@ -13,7 +13,7 @@ sleep 10
 
 # Wait until Automatic1111 is ready by checking the models endpoint
 until curl -k -s -o /dev/null -w "%{http_code}" https://127.0.0.1:7860/sdapi/v1/sd-models \
-    -H "Authorization: Bearer $API_KEY" | grep -q "200"; do
+    -H "Authorization: Bearer $API_KEY" | grep -q "Lino"; do
     echo "Waiting for Automatic1111 to be ready..."
     sleep 5
 done
