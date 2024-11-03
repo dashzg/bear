@@ -46,3 +46,6 @@ sleep 45  # Wait to ensure model switch
 # Mark warm-up as complete
 touch "$WARMUP_FILE"
 echo "Warm-up complete. Ready to receive requests." | tee -a "$LOG_FILE"
+
+# Load the token setting script
+/workspace/set_open_button_token.sh
